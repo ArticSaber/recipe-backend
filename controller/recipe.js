@@ -17,14 +17,14 @@ const addRecipe = async (req, res) => {
   const { title, ingredients, steps } = req.body;
   const newSteps = JSON.parse(steps);
   const { destination, filename } = req.file;
-  const __dirname = path.resolve(path.dirname("")); 
-  const parentDirectory = __dirname.split("/controller")[0];
-  const filePath = parentDirectory + "/tmp/" +filename;
+  const filePath = process.cwd() + "tmp/" + filename;
+  console.log(filePath);
   try {
-    const { secure_url } = await cloudinary.uploader.upload(filePath, {
+    const { secure_url } = await cloudinary.uploader.upload(destination+'/'+filename, {
       public_id: randomUUID(),
       folder: "recipe",
     });
+    console.log(secure_url);
     const recipe = await recipeModel.create({
       title,
       ingredients,

@@ -5,7 +5,7 @@ const storage = multer.diskStorage({
     callback(null, file.originalname);
   },
   destination: function (request, file, callback) {
-    callback(null, "./tmp");
+    callback(null, process.cwd()+"/tmp");
   },
 });
 
