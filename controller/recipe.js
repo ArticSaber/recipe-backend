@@ -1,6 +1,7 @@
 import recipeModel from "../models/recipe.js";
 import { v2 as cloudinary } from "cloudinary";
 import { randomUUID } from "crypto";
+import path from "path";
 
 const getAllRecipes = async (req, res) => {
   const listItems = await recipeModel.find();
@@ -16,14 +17,14 @@ const addRecipe = async (req, res) => {
   const { title, ingredients, steps } = req.body;
   const newSteps = JSON.parse(steps);
   const { destination, filename } = req.file;
+  const __dirname = path.resolve(path.dirname("")); 
+  const parentDirectory = __dirname.split("/controller")[0];
+  const filePath = parentDirectory + "/assets/" +filename;
   try {
-    const { secure_url } = await cloudinary.uploader.upload(
-      destination + "/" + filename,
-      {
-        public_id: randomUUID(),
-        folder: "recipe",
-      }
-    );
+    const { secure_url } = await cloudinary.uploader.upload(filePath, {
+      public_id: randomUUID(),
+      folder: "recipe",
+    });
     const recipe = await recipeModel.create({
       title,
       ingredients,
