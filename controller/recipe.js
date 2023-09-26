@@ -19,7 +19,7 @@ const addRecipe = async (req, res) => {
   const { destination, filename } = req.file;
   const __dirname = path.resolve(path.dirname("")); 
   const parentDirectory = __dirname.split("/controller")[0];
-  const filePath = parentDirectory + "/temp/" +filename;
+  const filePath = parentDirectory + "/tmp/" +filename;
   try {
     const { secure_url } = await cloudinary.uploader.upload(filePath, {
       public_id: randomUUID(),
