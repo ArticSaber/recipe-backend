@@ -1,25 +1,32 @@
 import recipeModel from "../models/recipe.js";
 import { v2 as cloudinary } from "cloudinary";
 import { randomUUID } from "crypto";
-import path from "path";
 
 const getAllRecipes = async (req, res) => {
-  const listItems = await recipeModel.find();
-  res.status(200).json(listItems);
+  try {
+    const listItems = await recipeModel.find();
+    res.status(200).json(listItems);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
 
 const getARecipe = async (req, res) => {
-  const recipe = await recipeModel.findById(req.params.id);
-  res.status(200).json(recipe);
+  try {
+    const recipe = await recipeModel.findById(req.params.id);
+    res.status(200).json(recipe);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
 
 const addRecipe = async (req, res) => {
-  const { title, ingredients, steps } = req.body;
-  const newSteps = JSON.parse(steps);
-  const { destination, filename } = req.file;
-  const filePath = destination + "/" + filename;
-  
   try {
+    const { title, ingredients, steps } = req.body;
+    const newSteps = JSON.parse(steps);
+    const { destination, filename } = req.file;
+    const filePath = destination + "/" + filename;
+
     const { secure_url } = await cloudinary.uploader.upload(filePath, {
       public_id: randomUUID(),
       folder: "recipe",
@@ -38,26 +45,25 @@ const addRecipe = async (req, res) => {
 };
 
 const updateRecipe = async (req, res) => {
-  const { title, ingredients, steps } = req.body;
-  const newSteps = JSON.parse(steps);
-
- const { destination, filename } = req.file;
   try {
-     const { secure_url } = await cloudinary.uploader.upload(
-      destination + "/" + filename,
-      {
+    const { title, ingredients, steps, image } = req.body;
+    console.log(title, ingredients, steps, image);
+    const newSteps = JSON.parse(steps || null);
+    const { destination, filename } = req.file ?? {};
+    var secure_url = image || null;
+    if (req?.file) {
+      var { secure_url } = await cloudinary.uploader.upload(destination + "/" + filename, {
         public_id: randomUUID(),
         folder: "recipe",
-      }
-    );
+      });
+    }
     const recipe = await recipeModel.findByIdAndUpdate(
       req.params.id,
       {
         title,
         ingredients,
         steps: newSteps,
-      image: secure_url,
-
+        image: secure_url,
       },
       { new: true }
     );
@@ -69,7 +75,7 @@ const updateRecipe = async (req, res) => {
 
 const deleteRecipe = async (req, res) => {
   try {
-    const deleteList = await recipeModel.findByIdAndDelete(req.params.id);
+    await recipeModel.findByIdAndDelete(req.params.id);
     res.status(200).json({ message: `deleted the list` });
   } catch (error) {
     res.status(500).json({ message: error.message });

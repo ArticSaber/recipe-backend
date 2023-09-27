@@ -9,9 +9,10 @@ import {
 import fileUpload from "../middleware/fileUpload.js";
 
 const router = express.Router();
+router.route("/").get(getAllRecipes).post(fileUpload.single("image"), addRecipe);
 router
-  .route("/")
-  .get(getAllRecipes)
-  .post(fileUpload.single("image"), addRecipe);
-router.route("/:id").patch(updateRecipe).get(getARecipe).delete(deleteRecipe);
+  .route("/:id")
+  .patch(fileUpload.single("image"), updateRecipe)
+  .get(getARecipe)
+  .delete(deleteRecipe);
 export default router;
